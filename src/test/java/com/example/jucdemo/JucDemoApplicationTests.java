@@ -7,7 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 class JucDemoApplicationTests {
 
     @Test
-    void contextLoads() {
+    void test01() {
+        Thread thread = new Thread(() -> {
+
+        }, "time01");
+        thread.start();
     }
 
 }
