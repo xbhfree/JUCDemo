@@ -17,6 +17,10 @@ synchronized
 3. 管程
    * 概念：monitor（监视器），也就是平时所说的锁
 ## CompletableFuture
-### Future
+### FutureTask
 * 功能：异步并行计算
 * 特点：多线程、有返回、异步任务
+* 优点：异步多线程，充分利用cpu资源
+* 缺点：
+   1. get()阻塞线程，调用即会等待至结果出现
+   2. isDone()轮询会造成cpu资源损失

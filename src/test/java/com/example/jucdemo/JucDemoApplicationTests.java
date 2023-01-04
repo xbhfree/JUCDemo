@@ -51,6 +51,32 @@ class JucDemoApplicationTests {
         }
         System.out.println(Thread.currentThread().getName() + " end");
     }
+
+    @Test
+    public void test04() throws ExecutionException, InterruptedException {
+
+        FutureTask<String> futureTask = new FutureTask<>(()->{
+            TimeUnit.MILLISECONDS.sleep(2000);
+           return "task end";
+        });
+        FutureTask<String> futureTask2 = new FutureTask<>(()->{
+            TimeUnit.MICROSECONDS.sleep(300);
+            return "task end";
+        });
+        Thread thread = new Thread(futureTask);
+        thread.start();
+        while (true){
+            if (futureTask.isDone()) {
+                futureTask.get();
+                break;
+            }else{
+                TimeUnit.MILLISECONDS.sleep(500);
+                System.out.println("进度进行中。。。");
+            }
+        }
+        System.out.println(Thread.currentThread().getName() + " end");
+
+    }
 }
 class MyThread01 implements Runnable{
 
