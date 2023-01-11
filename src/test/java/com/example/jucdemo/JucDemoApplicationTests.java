@@ -3,10 +3,8 @@ package com.example.jucdemo;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
+import java.util.Random;
+import java.util.concurrent.*;
 
 @SpringBootTest
 class JucDemoApplicationTests {
@@ -76,6 +74,70 @@ class JucDemoApplicationTests {
         }
         System.out.println(Thread.currentThread().getName() + " end");
 
+    }
+
+    @Test
+    public void test05(){
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+            System.out.println(Thread.currentThread().getName());
+        },executor);
+        try {
+            System.out.println(voidCompletableFuture.get());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        executor.shutdown();
+    }
+
+    @Test
+    public void test06(){
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        CompletableFuture<String> voidCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            System.out.println(Thread.currentThread().getName());
+            return "hello";
+        },executor);
+        try {
+            System.out.println(voidCompletableFuture.get());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        executor.shutdown();
+    }
+
+    /**
+     * CompletableFuture任务完成通知，轮询优化，默认线程池会使异步线程为守护线程，主线程结束异步线程随之结束，需加额外线程池
+     */
+    @Test
+    public void test07(){
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        try {
+            CompletableFuture<Integer> voidCompletableFuture = CompletableFuture.supplyAsync(() -> {
+                System.out.println(Thread.currentThread().getName() + "come in ----");
+                int result = ThreadLocalRandom.current().nextInt(10);
+                System.out.println("result = " + result);
+                if (result > 3){
+                    int i = 10/0;
+                }
+                return result;
+            },executor).whenComplete((v, e) -> {
+                if (e == null){
+                    System.out.println("计算结果为 " + v);
+                }
+            }).exceptionally(e -> {
+                e.printStackTrace();
+                System.out.println(e.getCause() + "-------" + e.getMessage());
+                return null;
+            });
+        }catch (Exception e){
+            System.out.println(e.getCause() + "-------" + e.getMessage());
+        }finally {
+            executor.shutdown();
+        }
     }
 }
 class MyThread01 implements Runnable{

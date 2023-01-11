@@ -24,3 +24,10 @@ synchronized
 * 缺点：
    1. get()阻塞线程，调用即会等待至结果出现
    2. isDone()轮询会造成cpu资源损失
+### CompletionStage
+* 功能：提供异步线程的多个方法，类似管道
+### CompletableFuture创建的四个静态方法
+1. `public static CompletableFuture<Void> runAsync(Runnable runnable)`
+2. `public static CompletableFuture<Void> runAsync(Runnable runnable, Executor executor)`
+3. `public static<U> CompletableFuture<U> supplyAsync(Supplier<U> supplier)`
+4. `public static<U> CompletableFuture<U> supplyAsync(Supplier<U> supplier, Executor executor)`
