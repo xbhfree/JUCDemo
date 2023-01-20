@@ -1,5 +1,7 @@
 package com.example.jucdemo;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -139,6 +141,18 @@ class JucDemoApplicationTests {
             executor.shutdown();
         }
     }
+
+    @Test
+    public void test08(){
+        Student student = new Student();
+        student.setId(1).setName("lisa");
+        System.out.println(student);
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            return "hello";
+        });
+        //和get类似，但不检查异常
+        System.out.println(future.join());
+    }
 }
 class MyThread01 implements Runnable{
 
@@ -156,4 +170,11 @@ class MyThread02 implements Callable<String>{
         TimeUnit.SECONDS.sleep(3);
         return "hello Callable";
     }
+}
+@Data
+//允许链式调用
+@Accessors(chain = true)
+class Student{
+    private Integer id;
+    private String name;
 }
