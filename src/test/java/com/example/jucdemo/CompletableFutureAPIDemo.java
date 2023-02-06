@@ -68,4 +68,17 @@ public class CompletableFutureAPIDemo  {
         System.out.println(Thread.currentThread().getName() + "主线程");
         executorService.shutdown();
     }
+
+    /**
+     *
+     */
+    @Test
+    public void test03(){
+        // thenRun A步骤与B步骤无关
+        System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenRun(() -> {}).join());
+        // 执行完A，A返回，B无返回，B可以用A的数据 accpet类似流的终结语句
+        System.out.println("+++" + CompletableFuture.supplyAsync(() -> "resultA").thenApply(r -> r + " resulatC").thenApply(r -> r + " resulatD").thenAccept(r -> System.out.println("?????" + r)).thenApply(r -> r + " resulatGG").thenAccept(r -> System.out.println("____" + r)).join());
+        //执行完A，与B结合返回值  apply类似流管道
+        System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenApply(r -> r + " resulatB").join());
+    }
 }
