@@ -31,3 +31,15 @@ synchronized
 2. `public static CompletableFuture<Void> runAsync(Runnable runnable, Executor executor)`
 3. `public static<U> CompletableFuture<U> supplyAsync(Supplier<U> supplier)`
 4. `public static<U> CompletableFuture<U> supplyAsync(Supplier<U> supplier, Executor executor)`
+### CompletableFuture常用API
+#### .handle((v, e)
+* 可以携带异常传递结果
+#### thenRun、thenApply、thenAccept
+1. `thenRun` A步骤与B步骤无关
+2. `thenAccept` 执行完A，A返回，B无返回，B可以用A的数据 accpet类似流的终结语句
+3. `thenApply` 执行完A，与B结合返回值  apply类似流管道
+#### applyToEither
+* `future.applyToEither(future2, f - > {})` future与future2比较返回执行更快的任务结果为f
+#### thenCombine
+* `future.thenCombine(future2, (x, y) -> { return x + y; });`
+  future与future2返回x,y结果进行结果结合，返回新的CompletableFuture对象
