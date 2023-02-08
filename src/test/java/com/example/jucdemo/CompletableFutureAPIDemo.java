@@ -110,4 +110,32 @@ public class CompletableFutureAPIDemo  {
         });
         System.out.println(future3.join());
     }
+
+    /**
+     * CompletableFuture之对计算结果合并
+     */
+    @Test
+    public void test05(){
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return "A";
+        });
+        CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return "B";
+        });
+
+        CompletableFuture<String> future1 = future.thenCombine(future2, (x, y) -> {
+            return x + y;
+        });
+        System.out.println(future1.join());
+    }
 }
