@@ -70,7 +70,7 @@ public class CompletableFutureAPIDemo  {
     }
 
     /**
-     *
+     * thenRun thenApply thenAccept
      */
     @Test
     public void test03(){
@@ -80,5 +80,34 @@ public class CompletableFutureAPIDemo  {
         System.out.println("+++" + CompletableFuture.supplyAsync(() -> "resultA").thenApply(r -> r + " resulatC").thenApply(r -> r + " resulatD").thenAccept(r -> System.out.println("?????" + r)).thenApply(r -> r + " resulatGG").thenAccept(r -> System.out.println("____" + r)).join());
         //执行完A，与B结合返回值  apply类似流管道
         System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenApply(r -> r + " resulatB").join());
+    }
+
+    /**
+     * CompletableFuture之对计算速度选用
+     * applyToEither 返回结果更快的任务结果
+     */
+    @Test
+    public void test04(){
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return "A";
+        });
+        CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return "B";
+        });
+        //返回执行任务更快的结果为 f
+        CompletableFuture<String> future3 = future.applyToEither(future2, f -> {
+            return f + " is winner";
+        });
+        System.out.println(future3.join());
     }
 }
