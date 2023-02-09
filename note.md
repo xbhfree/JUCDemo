@@ -43,3 +43,13 @@ synchronized
 #### thenCombine
 * `future.thenCombine(future2, (x, y) -> { return x + y; });`
   future与future2返回x,y结果进行结果结合，返回新的CompletableFuture对象
+
+## 锁
+### 悲观锁
+* 概念：认为使用资源时，一定有别的线程抢占资源，多用于写操作
+* 常用方式：`synchronized`、`Lock`
+### 乐观锁
+* 概念；认为使用资源时，不会有别的线程抢占资源，多用于读操作
+* 常用方式：
+  1. 版本号机制
+  2. cas（compare and swap）算法
