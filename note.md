@@ -48,7 +48,14 @@ synchronized
 ### 悲观锁
 * 概念：认为使用资源时，一定有别的线程抢占资源，多用于写操作
 * 常用方式：`synchronized`、`Lock`
-* `synchromized`:实例锁，一个对象有多个`synchromized`方法，某一时刻，只要有一个线程调用任一`synchromized`方法，其他线程只能等待。锁的对象是this
+* `synchromized`:
+  1. 本质：实例锁
+  2. 解释：一个对象有多个`synchromized`方法，某一时刻，只要有一个线程调用任一`synchromized`方法，其他线程只能等待。锁的对象是this
+  3. 原理：
+     1. 代码块锁 `javap -c */*.class`反编译看字节码由`monitorenter`和`monitorexit`实现锁功能
+     2. 对象锁  `javap -v */*.class`查看字节码附加信息，有ACC_SYNCHROMIZED标识
+     3. 类锁 有ACC_STATIC和ACC_SYNCHROMIZED标识
+
 * `static synchromized` 类锁，锁定类创建的所有对象
 ### 乐观锁
 * 概念；认为使用资源时，不会有别的线程抢占资源，多用于读操作

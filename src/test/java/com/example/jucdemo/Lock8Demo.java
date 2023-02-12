@@ -65,6 +65,8 @@ public class Lock8Demo {
             phone.hello();
         }, "b").start();
     }
+
+
 }
 
 /**
@@ -108,5 +110,25 @@ class StaticPhone{
 
     public void hello(){
         System.out.println("hello");
+    }
+}
+
+/**
+ * 锁的三种方式
+ */
+class LockMethod{
+    //第一种
+    public synchronized void firstLockMethod(){
+
+    }
+    //第二种
+    public static synchronized void secondLockMethod(){
+
+    }
+    //第三种
+    public void thirdLockMethod(){
+        synchronized (this){
+
+        }
     }
 }
