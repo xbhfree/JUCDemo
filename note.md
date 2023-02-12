@@ -48,6 +48,8 @@ synchronized
 ### 悲观锁
 * 概念：认为使用资源时，一定有别的线程抢占资源，多用于写操作
 * 常用方式：`synchronized`、`Lock`
+* `synchromized`:实例锁，一个对象有多个`synchromized`方法，某一时刻，只要有一个线程调用任一`synchromized`方法，其他线程只能等待。锁的对象是this
+* `static synchromized` 类锁，锁定类创建的所有对象
 ### 乐观锁
 * 概念；认为使用资源时，不会有别的线程抢占资源，多用于读操作
 * 常用方式：
