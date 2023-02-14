@@ -55,6 +55,7 @@ synchronized
      1. 代码块锁 `javap -c */*.class`反编译看字节码由`monitorenter`和`monitorexit`实现锁功能
      2. 对象锁  `javap -v */*.class`查看字节码附加信息，有ACC_SYNCHROMIZED标识
      3. 类锁 有ACC_STATIC和ACC_SYNCHROMIZED标识
+  4. 问答：为什么每一个对象都可以成为一个锁?<br/>底层c++创建对象时，会创建`objectMonitor()`，里面有`_owner`属性指向持有锁的对象
 
 * `static synchromized` 类锁，锁定类创建的所有对象
 ### 乐观锁
@@ -62,3 +63,13 @@ synchronized
 * 常用方式：
   1. 版本号机制
   2. cas（compare and swap）算法
+### 公平锁和非公平锁
+* 定义：
+  1. 公平锁：多个线程按照申请锁的顺序获取锁，类似排队买票<br/>
+  `ReentrantLock lock = new ReentrantLock(true);`
+  2. 非公平锁：多个线程并不按照申请锁的顺序获取锁，高并发下有可能造成优先级反转或者饥饿的状态（某个线程一直得不到锁）
+  <br/> `ReentrantLock lock = new ReentrantLock();`<br/>`ReentrantLock lock = new ReentrantLock(false);`
+* 问答
+  1. 为什么有公平，非公平的设计？<br/> 恢复挂起的锁到真正锁的获取有时间差，非公平锁能够更充分利用cpu的时间片，尽量减少cpu空闲时间
+  2. 
+  
