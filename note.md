@@ -71,5 +71,7 @@ synchronized
   <br/> `ReentrantLock lock = new ReentrantLock();`<br/>`ReentrantLock lock = new ReentrantLock(false);`
 * 问答
   1. 为什么有公平，非公平的设计？<br/> 恢复挂起的锁到真正锁的获取有时间差，非公平锁能够更充分利用cpu的时间片，尽量减少cpu空闲时间
-  2. 
+  2. 什么时候用公平，用非公平？<br/>注重效率用非公平，注重业务吞吐量用公平
+### 可重入锁
+
   
