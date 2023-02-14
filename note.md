@@ -36,7 +36,7 @@ synchronized
 * 可以携带异常传递结果
 #### thenRun、thenApply、thenAccept
 1. `thenRun` A步骤与B步骤无关
-2. `thenAccept` 执行完A，A返回，B无返回，B可以用A的数据 accpet类似流的终结语句
+2. `thenAccept` 执行完A，A返回，B无返回，B可以用A的数据 accept类似流的终结语句
 3. `thenApply` 执行完A，与B结合返回值  apply类似流管道
 #### applyToEither
 * `future.applyToEither(future2, f - > {})` future与future2比较返回执行更快的任务结果为f
@@ -50,11 +50,11 @@ synchronized
 * 常用方式：`synchronized`、`Lock`
 * `synchromized`:
   1. 本质：实例锁
-  2. 解释：一个对象有多个`synchromized`方法，某一时刻，只要有一个线程调用任一`synchromized`方法，其他线程只能等待。锁的对象是this
+  2. 解释：一个对象有多个`synchromized`方法，某一时刻，只要有一个线程调用任一`synchronized`方法，其他线程只能等待。锁的对象是this
   3. 原理：
      1. 代码块锁 `javap -c */*.class`反编译看字节码由`monitorenter`和`monitorexit`实现锁功能
-     2. 对象锁  `javap -v */*.class`查看字节码附加信息，有ACC_SYNCHROMIZED标识
-     3. 类锁 有ACC_STATIC和ACC_SYNCHROMIZED标识
+     2. 对象锁  `javap -v */*.class`查看字节码附加信息，有ACC_SYNCHRONIZED标识
+     3. 类锁 有ACC_STATIC和ACC_SYNCHRONIZED标识
   4. 问答：为什么每一个对象都可以成为一个锁?<br/>底层c++创建对象时，会创建`objectMonitor()`，里面有`_owner`属性指向持有锁的对象
 
 * `static synchromized` 类锁，锁定类创建的所有对象
@@ -72,6 +72,6 @@ synchronized
 * 问答
   1. 为什么有公平，非公平的设计？<br/> 恢复挂起的锁到真正锁的获取有时间差，非公平锁能够更充分利用cpu的时间片，尽量减少cpu空闲时间
   2. 什么时候用公平，用非公平？<br/>注重效率用非公平，注重业务吞吐量用公平
-### 可重入锁
-
-  
+### 可重入锁（递归锁）
+* 定义：同一个线程在外层方法获取锁的时候，在进入该线程的内层方法会自动获取锁（前提，锁对象是同一个对象），不会因为之前已经获取过还没释放而阻塞
+* 类型：synchronized、ReentrantLock
