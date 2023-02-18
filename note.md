@@ -81,7 +81,7 @@ synchronized
 * 发现死锁方式：<br/>1.纯命令`jps -l`查看类进程号 `jstack 进程编号`打印死锁类；2.图形化 jconsole，在jdk包里面
 ## 中断协商机制
 * 定义：
-  1. 调用线程`interrupt`方法，将中断标志设置为true，再自己实现中断线程操作
+  1. 调用线程`interrupt`方法，将活动的线程中断标志设置为true，再自己实现中断线程操作
      2. 如果线程处于阻塞状态（sleep，join，wait等），在别的线程调用当前线程的`interrupt`方法则会立刻退出阻塞状态，并抛出`InterruptedException`
 * 实现：
     1. `public void interrupt()` 设置线程中断状态为true，发起一个协商而不会立刻停止线程
