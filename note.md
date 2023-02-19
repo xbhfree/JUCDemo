@@ -92,3 +92,10 @@ synchronized
   2. `public static boolean interrupted()` 判断线程是否被中断并清楚当前中断状态
   3. `public boolean isInterrupted()` 判断当前线程是否被中断（通过检查中断标志位）
 ### LockSupport
+#### 常用方法
+1. `park()` 阻塞
+2. `park(Thread)`阻塞
+3. `unpark(Thread)` 唤醒，发放通行证（permit
+#### 优点
+1. 不必加锁
+2. 可以先唤醒再等待

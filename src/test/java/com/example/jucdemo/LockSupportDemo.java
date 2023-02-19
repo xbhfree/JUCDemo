@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -89,5 +90,31 @@ public class LockSupportDemo {
             }
 
         },"t2").start();
+    }
+
+    /**
+     * 测试LockSupport对于线程唤醒等待的需求
+     * 1.不需锁
+     * 2.可先发通行证，再校验，但要成对
+     * 3.许可证只有一个，不可多对多
+     */
+    @Test
+    public void test03() throws InterruptedException {
+        Thread t1 = new Thread(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("come in---");
+            LockSupport.park();
+            System.out.println(Thread.currentThread().getName() + "已经被唤醒");
+        }, "t1");
+        t1.start();
+        new Thread(() -> {
+            LockSupport.unpark(t1);
+            System.out.println("向t1线程发送唤醒指令");
+        },"t2").start();
+        TimeUnit.SECONDS.sleep(5);
     }
 }
