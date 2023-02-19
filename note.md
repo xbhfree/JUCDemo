@@ -44,8 +44,8 @@ synchronized
 * `future.thenCombine(future2, (x, y) -> { return x + y; });`
   future与future2返回x,y结果进行结果结合，返回新的CompletableFuture对象
 ### 线程唤醒方法
-1. 使用Object中的wait()方法让线程等待，notify()唤醒
-2. 使用JUC包中的await()方法让线程等待，signal()唤醒
+1. 使用Object中的`wait()`方法让线程等待，`notify()`唤醒
+2. 使用JUC包中的`await()`方法让线程等待，`signal()`唤醒
 3. LockSupport类
 
 ## 锁
