@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 线程等待，唤醒测试demo
@@ -42,5 +45,49 @@ public class LockSupportDemo {
                 System.out.println("发起唤醒object操作");
             }
         }, "t2").start();
+    }
+
+    /**
+     * 测试juc的await和signal方法
+     */
+    @Test
+    public void test02(){
+        //Reentrant可重入的
+        Lock lock = new ReentrantLock();
+        //condition 状况，状态；条件，环境；疾病；条款；<旧>社会地位
+        Condition condition = lock.newCondition();
+        new Thread(() -> {
+            //必须先睡再唤醒
+            /*try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }*/
+            lock.lock();
+            try {
+                System.out.println("come in---");
+                condition.await();
+                System.out.println("condition已经被唤醒");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }finally {
+                lock.unlock();
+            }
+        },"t1").start();
+        try {
+            TimeUnit.MILLISECONDS.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        new Thread(() -> {
+            lock.lock();
+            try {
+                condition.signal();
+                System.out.println("发出condition唤醒命令");
+            }finally {
+                lock.unlock();
+            }
+
+        },"t2").start();
     }
 }
