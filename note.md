@@ -43,6 +43,10 @@ synchronized
 #### thenCombine
 * `future.thenCombine(future2, (x, y) -> { return x + y; });`
   future与future2返回x,y结果进行结果结合，返回新的CompletableFuture对象
+### 线程唤醒方法
+1. 使用Object中的wait()方法让线程等待，notify()唤醒
+2. 使用JUC包中的await()方法让线程等待，signal()唤醒
+3. LockSupport类
 
 ## 锁
 ### 悲观锁
@@ -88,7 +92,3 @@ synchronized
   2. `public static boolean interrupted()` 判断线程是否被中断并清楚当前中断状态
   3. `public boolean isInterrupted()` 判断当前线程是否被中断（通过检查中断标志位）
 ### LockSupport
-
-### 问答
-1. 如何中断一个运行中的线程
-2. 如何停止一个运行中的线程
