@@ -148,4 +148,18 @@ public class InterruptDemo {
         }
         System.out.println("t2打断后t1中断标志02=" + t1.isInterrupted());
     }
+
+    /**
+     * 测试静态方法interrupted，返回线程中断状态并且重置线程中断状态为false-未中断
+     */
+    @Test
+    public void test06(){
+        System.out.println(Thread.currentThread().getName() + "---" + Thread.interrupted());
+        System.out.println(Thread.currentThread().getName() + "---" + Thread.interrupted());
+        System.out.println("----------------");
+        Thread.currentThread().interrupt();
+        System.out.println(Thread.currentThread().getName() + "---" + Thread.interrupted());
+        System.out.println(Thread.currentThread().getName() + "---" + Thread.interrupted());
+
+    }
 }
