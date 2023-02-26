@@ -166,4 +166,4 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
 |volatile读|不可重排|不可重排| 不可重排             |
 |volatile写|可重排|不可重排| 不可重排             |
 * volatile读写过程<br/>`lock`[主]（锁定）->`read`[主线程]（读取）->`load`[工作内存]（加载）->`use`[工]（使用）<br/>--cpu-->`assign`[工]（赋值）->`write`[主]（写入）-> `unlock`[主]（解锁）
-
+* num++ 不具备原子性，getfield iadd putfield
