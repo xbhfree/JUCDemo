@@ -184,3 +184,51 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
 #### 定义
 * 全称 CompareAndSwap
 * 自旋定义：CAS有3个操作数，位置内存V，旧的预期值A，要修改的更新值B<br/>当且仅当旧的预期值A和内存值V相同时，将内存值修改为B，否则什么都不做或者重来，当它重来重试的这种行为称为--自旋
+* CAS定义：CAS是jdk提供的非阻塞原子性操作，它通过硬件保证了比较-更新的原子性
+* CAS底层：cpu原子指令--`cmpxchg`指令
+#### Unsafe类
+* 定义：是cas的核心类，可以使java直接访问底层系统，相当于一个后门
+* 位置：jre/lib/rt.jar/sun/misc
+* 
+  ``` java
+    public final int getAndAddInt(Object o, long offset, int delta) {
+          int v;
+          do {
+              v = getIntVolatile(o, offset);
+          // o对象，offset偏移量，v原值，v+delta修改值
+          //比较原值与o所在offset值是否相等，相等true取反并更新
+          } while (!weakCompareAndSetInt(o, offset, v, v + delta));
+          return v;
+      }
+    ```
+    
+  * `while (!weakCompareAndSetInt(o, offset, v, v + delta))`底层
+    ``` c++
+      return Atomic::cmpxchg(x,addr,e) == e;
+    ```
+    ``` c++
+    inline jint Atomic::cmoxchg(jint exchange_vale, volatile jint* dest, jint compare_value){
+    //判断是否多核cpu
+    int mp = os::is_MP();
+    _asm{
+      //三个mov指令表示将后面的值移动到前面的寄存器上
+      mov edx, dest
+      mov ecx, exchge_value
+      mov eax, compare_value
+      //cpu原语级别，cpu触发
+      LOCK_IF_MP(mp)
+      //cmpxchg:比较并交换指令
+      //dword 全称double word表示两个字，四个字节
+      //ptr 全称pointer，与dword连起来使用，表示访问的内存单元是一个双字节单元
+      //将 eax寄存器中的值（compare_value）与edx双字节内存单元中的值进行比较
+        cmpxchg dword ptr[edx], ecx
+    }
+    }
+    ```
+    
+#### CAS缺点
+* 循环时间开销大
+
+* aba问题
+1. 定义：线程1将值A提取A，挂起，线程2将值A提取，改为B，又改为A，线程1看到的还是A
+2. 解决方法：版本号标记
