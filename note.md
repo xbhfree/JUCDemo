@@ -232,3 +232,40 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
 * aba问题
 1. 定义：线程1将值A提取A，挂起，线程2将值A提取，改为B，又改为A，线程1看到的还是A
 2. 解决方法：版本号标记
+
+### 原子操作类
+#### 基本类型原子类
+* AtomicInteger<br/>
+常用方法：
+  1. ` public final int get() //获取当前的值 `
+  2. `public final int getAndSet(int newValue) //获取当前值，并设置新值`
+  3. `public final int getAndIncrement() //获取当前值并自增`
+  4. `public final int getAndDecrement() //获取当前值并自减`
+  5. `public final int getAndAdd(int delta) //获取当前值并加上预期的值`
+  6.  `public final boolean compareAndSet(int expectedValue, int newValue) //如果输入的数值等于预期值，则以原子方式将该值设置为输入值（newValue）`
+* AtomicLong
+
+* AtomicBoolean
+#### 数组类型原子类
+* AtomicIntegerArray
+
+* AtomicLongArray
+
+* AtomicReferenceArray
+#### 引用类型原子类
+* AtomicReference
+
+* AtomicStampedReference
+作用： 解决修改过几次
+* AtomicMarkableReference
+作用： 解决是否修改过
+
+#### 对象的属性修改原子类理论
+* AtomicIntegerFieldUpdater
+作用：以一种线程安全的方式操作非线程安全对象内的某些字段
+使用要求：<br/>
+  1. 更新的对象属性必须用public volatile修饰
+  2. 因为对象的属性修改类型原子类都是抽象类，所以每次使用都必须使用静态方法newUpdater()创建一个更新器，并且需要设置想要更新的类和属性
+* AtomicLongFieldUpdater
+
+* AtomicReferenceFieldUpdater
