@@ -269,3 +269,130 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
 * AtomicLongFieldUpdater
 
 * AtomicReferenceFieldUpdater
+
+#### 原子操作增强类
+* 学习方法：ab法则，before->after
+* 思想：化整为零，分散热点
+* LongAdder<br/>
+  * 为什么计算块？
+  1. 底层计算公式：`value = base + SUM(cell[i](o...i))`
+  2. base变量：低并发，直接累加； cell[]数组，高并发，累加
+     * `longAdder.increment();` 源码分析
+       * ``` java
+         /**
+         * cs表示cells引用
+         * b 表示获取的base值
+         * v 表示期望值
+         * m 表示cells数组的长度
+         * c 表示当前线程命中的cell单元格
+         * 1.最初无竞争时只更新base
+         * 2.如果更新base失败后，首次创建一个cell[]数组
+         * 3.当多个线程竞争同一个cell比较激烈时，可能就要对cell[]扩容
+         */
+         public void add(long x) {
+             Cell[] cs; long b, v; int m; Cell c;
+             //首次首线程((cs = cells) != null)一定是false，此时走casBase方式更新base值，且只有cas失败时，才会走入if中 (uncontended = c.cas(v = c.value, v + x))
+             //条件1：cells不为空
+             //条件2：cas操作casBase失败，说明其他线程先一步修改了base正在出现竞争
+             if ((cs = cells) != null || !casBase(b = base, b + x)) {
+                 int index = getProbe();
+                 //contended竞争者，true无竞争，false表示竞争激烈，多个线程hash到同一个cell，可能要扩容
+                 boolean uncontended = true;
+                 //条件1：cells为空
+                 //条件2：应该不会出现
+                 //条件3：当前线程所在cell为空，说明当前线程还没更新过cell，应该初始化一个cell
+                 //条件4：更新当前线程所在的cell失败，说明竞争激烈，多个线程hash到了同一个cell，需要扩容
+                 if (cs == null || (m = cs.length - 1) < 0 ||
+                     (c = cs[index & m]) == null ||
+                     !(uncontended = c.cas(v = c.value, v + x)))
+                     longAccumulate(x, null, uncontended, index);
+             }
+         }
+         
+       ```
+  * `longAccumulate(x, null, uncontended, index);` 源码分析
+  * ```java
+    final void longAccumulate(long x, LongBinaryOperator fn,
+                              boolean wasUncontended, int index) {
+        if (index == 0) {
+            ThreadLocalRandom.current(); // force initialization
+            index = getProbe();
+            wasUncontended = true;
+        }
+        for (boolean collide = false;;) {       // True if last slot nonempty
+            Cell[] cs; Cell c; int n; long v;
+            if ((cs = cells) != null && (n = cs.length) > 0) {
+                if ((c = cs[(n - 1) & index]) == null) {
+                    if (cellsBusy == 0) {       // Try to attach new Cell
+                        Cell r = new Cell(x);   // Optimistically create
+                        if (cellsBusy == 0 && casCellsBusy()) {
+                            try {               // Recheck under lock
+                                Cell[] rs; int m, j;
+                                if ((rs = cells) != null &&
+                                    (m = rs.length) > 0 &&
+                                    rs[j = (m - 1) & index] == null) {
+                                    rs[j] = r;
+                                    break;
+                                }
+                            } finally {
+                                cellsBusy = 0;
+                            }
+                            continue;           // Slot is now non-empty
+                        }
+                    }
+                    collide = false;
+                }
+                else if (!wasUncontended)       // CAS already known to fail
+                    wasUncontended = true;      // Continue after rehash
+                else if (c.cas(v = c.value,
+                               (fn == null) ? v + x : fn.applyAsLong(v, x)))
+                    break;
+                else if (n >= NCPU || cells != cs)
+                    collide = false;            // At max size or stale
+                else if (!collide)
+                    collide = true;
+                else if (cellsBusy == 0 && casCellsBusy()) {
+                    try {
+                        if (cells == cs)        // Expand table unless stale
+                            cells = Arrays.copyOf(cs, n << 1);
+                    } finally {
+                        cellsBusy = 0;
+                    }
+                    collide = false;
+                    continue;                   // Retry with expanded table
+                }
+                index = advanceProbe(index);
+            }
+            else if (cellsBusy == 0 && cells == cs && casCellsBusy()) {
+                try {                           // Initialize table，扩容为2次幂
+                    if (cells == cs) {
+                        Cell[] rs = new Cell[2];
+                        rs[index & 1] = new Cell(x);
+                        cells = rs;
+                        break;
+                    }
+                } finally {
+                    cellsBusy = 0;
+                }
+            }
+            // Fall back on using base
+            else if (casBase(v = base,
+                             (fn == null) ? v + x : fn.applyAsLong(v, x)))
+                break;
+        }
+    }
+    ```
+* LongAccumulator
+
+* DoubleAdder
+
+* DoubleAccumulator
+
+* Stripe64变量和方法定义：
+  1. base：类似与AtomicLong中全局的value值。在没有竞争情况下数据直接累加到base上，或者cells扩容时，也需将数据写入到base上
+  2. collide【冲突】：表示扩容意向。false一定不会扩容，true可能会扩容
+  3. cellsBusy：初始化cells或者扩容cells需要获取锁，0：无锁状态；1：其他线程已经持有了锁
+  4. casCellsBusy()：通过cas操作修改cellsBusy的值，cas成功表示获取锁，返回true
+  5. NCPU：当前计算机cpu数量，cell数组扩容会用到
+  6. getProbe()【probe调查打探】：获取当前线程的hash值
+  7. advanceProbe()：重置当前线程的hash值

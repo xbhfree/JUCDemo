@@ -1,12 +1,15 @@
 package com.example.jucdemo;
 
+import ch.qos.logback.core.joran.spi.NoAutoStartUtil;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.*;
+import java.util.function.LongBinaryOperator;
 
 /**
  * 原子操作类测试demo
@@ -15,6 +18,7 @@ import java.util.concurrent.atomic.*;
 public class AtomicDemo {
 
     private static final int threadSize = 50;
+    private static final int _1W = 10000;
     /**
      * 测试原子类的原子性，50个线程同时做加1操作
      */
@@ -128,6 +132,119 @@ public class AtomicDemo {
         }
         try {TimeUnit.SECONDS.sleep(5);} catch (InterruptedException e) {throw new RuntimeException(e);}
     }
+
+    /**
+     * 测试原子类之LongAdder和LongAccumulator
+     */
+    @Test
+    public void test06(){
+        //默认初始化值为0
+        LongAdder longAdder = new LongAdder();
+        longAdder.add(1);
+        longAdder.add(1);
+        longAdder.add(1);
+        System.out.println(longAdder.sum());
+
+        //LongAccumulator两种初始化
+        LongAccumulator longAccumulator = new LongAccumulator((x, y) -> x + y, 0);
+        LongAccumulator longAccumulator1 = new LongAccumulator(new LongBinaryOperator() {
+            @Override
+            public long applyAsLong(long left, long right) {
+                return left + right;
+            }
+        }, 0);
+        longAccumulator.accumulate(1);
+        longAccumulator.accumulate(2);
+        System.out.println(longAccumulator.get());
+    }
+
+    /**
+     * 原子类之高性能热点商品点赞计数案例
+     */
+    @Test
+    public void test07() throws InterruptedException {
+        long startTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
+        ClickNum clickNum = new ClickNum();
+        CountDownLatch latch = new CountDownLatch(threadSize);
+        CountDownLatch latch2 = new CountDownLatch(threadSize);
+        CountDownLatch latch3 = new CountDownLatch(threadSize);
+        CountDownLatch latch4 = new CountDownLatch(threadSize);
+
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < threadSize; i++) {
+            new Thread(() -> {
+                try {
+                    for (int j = 0; j < 100*_1W; j++) {
+                        clickNum.addPlusPlusBySync();
+                    }
+                } finally {
+                    latch.countDown();
+                }
+            },String.valueOf(i)).start();
+        }
+        latch.await();
+        endTime = System.currentTimeMillis();
+        System.out.println("1 " + (endTime-startTime));
+
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < threadSize; i++) {
+            new Thread(() -> {
+                try {
+                    for (int j = 0; j < 100*_1W; j++) {
+                        clickNum.addPlusPlusByAtomicInteger();
+                    }
+                } finally {
+                    latch2.countDown();
+                }
+            },String.valueOf(i)).start();
+        }
+        latch2.await();
+        endTime = System.currentTimeMillis();
+        System.out.println("2 " + (endTime-startTime));
+
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < threadSize; i++) {
+            new Thread(() -> {
+                try {
+                    for (int j = 0; j < 100*_1W; j++) {
+                        clickNum.addPlusPlusByLongAdder();
+                    }
+                } finally {
+                    latch3.countDown();
+                }
+            },String.valueOf(i)).start();
+        }
+        latch3.await();
+        endTime = System.currentTimeMillis();
+        System.out.println("3 " + (endTime-startTime));
+
+        startTime = System.currentTimeMillis();
+        for (int i = 0; i < threadSize; i++) {
+            new Thread(() -> {
+                try {
+                    for (int j = 0; j < 100*_1W; j++) {
+                        clickNum.addPlusPlusByLongAccumulator();
+                    }
+                } finally {
+                    latch4.countDown();
+                }
+            },String.valueOf(i)).start();
+        }
+        latch4.await();
+        endTime = System.currentTimeMillis();
+        System.out.println("4 " + (endTime-startTime));
+
+    }
+
+    @Test
+    public void test08(){
+        int i = Runtime.getRuntime().availableProcessors();
+        System.out.println(i);
+        new HashMap<>().put(1,2);
+        LongAdder longAdder = new LongAdder();
+        longAdder.increment();
+    }
 }
 @Data
 class MyNumber{
@@ -172,5 +289,27 @@ class MyVar{
         }else{
             System.out.println(Thread.currentThread().getName() + "\t" + "有其他线程已经在初始化---");
         }
+    }
+}
+
+class ClickNum{
+    int num = 0;
+    public synchronized void addPlusPlusBySync(){
+        num++;
+    }
+
+    AtomicInteger atomicInteger = new AtomicInteger(0);
+    public void addPlusPlusByAtomicInteger(){
+        atomicInteger.getAndIncrement();
+    }
+
+    LongAdder longAdder = new LongAdder();
+    public void addPlusPlusByLongAdder(){
+        longAdder.increment();
+    }
+
+    LongAccumulator longAccumulator = new LongAccumulator((x, y) -> x + y, 0);
+    public void addPlusPlusByLongAccumulator(){
+        longAccumulator.accumulate(1);
     }
 }
