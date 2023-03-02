@@ -244,6 +244,15 @@ public class AtomicDemo {
         new HashMap<>().put(1,2);
         LongAdder longAdder = new LongAdder();
         longAdder.increment();
+        System.out.println(126 & 1);
+        while (true){
+            try {
+                System.out.println("hello");
+                break;
+            }finally {
+                System.out.println("finally");
+            }
+        }
     }
 }
 @Data

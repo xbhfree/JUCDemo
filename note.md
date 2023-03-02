@@ -312,25 +312,33 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
        ```
   * `longAccumulate(x, null, uncontended, index);` 源码分析
   * ```java
+    //long x需要增加的值，一般是1
+    //LongBinaryOperator fn 一般传null
+    //boolean wasUncontended 竞争标识，false代表有竞争，只有cells初始化之后，并且当前线程cas竞争失败才会是false
     final void longAccumulate(long x, LongBinaryOperator fn,
                               boolean wasUncontended, int index) {
+        //如果index等于0，表明随机数还未初始化
         if (index == 0) {
+            //ThreadLocalRandom为当前线程重新计算一个hash值，强制初始化
             ThreadLocalRandom.current(); // force initialization
+            //重新获取probe值，hash值被充值，相当于一个新线程，所以设置wasUncontended为true
             index = getProbe();
             wasUncontended = true;
         }
+        // collide 冲突，在这里表示扩容意向，true为想扩容
         for (boolean collide = false;;) {       // True if last slot nonempty
             Cell[] cs; Cell c; int n; long v;
+            //CASE1：cells已经被初始化了
             if ((cs = cells) != null && (n = cs.length) > 0) {
-                if ((c = cs[(n - 1) & index]) == null) {
-                    if (cellsBusy == 0) {       // Try to attach new Cell
+                if ((c = cs[(n - 1) & index]) == null) { // 当前线程hash值运算后映射到cell单元为null，说明cell没有被使用
+                    if (cellsBusy == 0) {       // Try to attach new Cell cell数组没有正在扩容
                         Cell r = new Cell(x);   // Optimistically create
-                        if (cellsBusy == 0 && casCellsBusy()) {
+                        if (cellsBusy == 0 && casCellsBusy()) { //尝试加锁，成功后cellsBusy==1
                             try {               // Recheck under lock
-                                Cell[] rs; int m, j;
+                                Cell[] rs; int m, j; //有锁情况下再判断一遍
                                 if ((rs = cells) != null &&
                                     (m = rs.length) > 0 &&
-                                    rs[j = (m - 1) & index] == null) {
+                                    rs[j = (m - 1) & index] == null) { //将cell单元附到cells数组上
                                     rs[j] = r;
                                     break;
                                 }
@@ -342,31 +350,34 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
                     }
                     collide = false;
                 }
-                else if (!wasUncontended)       // CAS already known to fail
-                    wasUncontended = true;      // Continue after rehash
+                else if (!wasUncontended)       // CAS already known to fail  竞争失败
+                    wasUncontended = true;      // Continue after rehash   重新获取hash值，调用index = advanceProbe(index);
                 else if (c.cas(v = c.value,
-                               (fn == null) ? v + x : fn.applyAsLong(v, x)))
+                               (fn == null) ? v + x : fn.applyAsLong(v, x))) //当前线程对应的数组中有了数据，并且重置过hash值，通过cas进行累加操作，x默认为1，cas成功跳出循环
                     break;
                 else if (n >= NCPU || cells != cs)
-                    collide = false;            // At max size or stale
-                else if (!collide)
+                    collide = false;            // At max size or stale  n>=NCPU不可扩容，继续调用index = advanceProbe(index);
+                else if (!collide)  //false表示想扩容且能扩容
                     collide = true;
-                else if (cellsBusy == 0 && casCellsBusy()) {
+                else if (cellsBusy == 0 && casCellsBusy()) {//当前cells数组和最先复制的cs数组是同一个，代表其他线程没有扩容过
                     try {
                         if (cells == cs)        // Expand table unless stale
-                            cells = Arrays.copyOf(cs, n << 1);
+                            cells = Arrays.copyOf(cs, n << 1); //左移1位，相当于*2
                     } finally {
-                        cellsBusy = 0;
+                        cellsBusy = 0; //释放锁
                     }
-                    collide = false;
+                    collide = false; // 不想扩容
                     continue;                   // Retry with expanded table
                 }
                 index = advanceProbe(index);
             }
+            //CASE2：cells没有加锁且没有初始化，则尝试对它加锁并初始化cells数组
             else if (cellsBusy == 0 && cells == cs && casCellsBusy()) {
                 try {                           // Initialize table，扩容为2次幂
+                    //double check 防止new cells数组时，上一个线程对应数组中的值被纂改
                     if (cells == cs) {
                         Cell[] rs = new Cell[2];
+                        // index & table.length - 1
                         rs[index & 1] = new Cell(x);
                         cells = rs;
                         break;
@@ -375,6 +386,7 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
                     cellsBusy = 0;
                 }
             }
+            //CASE3：cells正在初始化，则尝试在base上进行累加操作,兜底的
             // Fall back on using base
             else if (casBase(v = base,
                              (fn == null) ? v + x : fn.applyAsLong(v, x)))
@@ -382,6 +394,8 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
         }
     }
     ```
+    ![longAccumulate代码解析图.png](./longAccumulate代码解析图.png)
+  * ![longAccumulate代码解析图02.png](./longAccumulate代码解析图02.png)
 * LongAccumulator
 
 * DoubleAdder
