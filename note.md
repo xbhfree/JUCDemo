@@ -410,3 +410,8 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
   5. NCPU：当前计算机cpu数量，cell数组扩容会用到
   6. getProbe()【probe调查打探】：获取当前线程的hash值
   7. advanceProbe()：重置当前线程的hash值
+
+### ThreadLocal
+#### 定义
+* ThredLocal提供线程局部变量，每一个线程在访问ThreadLocal实例的时候，都有自己独立初始化的变量副本
+* ThreadLocal实例通常是私有静态字段，目的是将状态（用户id或者事务id）与线程相关联
