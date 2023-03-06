@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SpringBootTest
 public class ThreadLocalDemo {
@@ -17,22 +19,44 @@ public class ThreadLocalDemo {
         for (int i = 0; i < 5; i++) {
             int size = new Random().nextInt(5) + 1;
             new Thread(() -> {
-                for (int j = 0; j < size; j++) {
-                    house.saleValueByThreadLocal();
+                try {
+                    for (int j = 0; j < size; j++) {
+                        house.saleValueByThreadLocal();
+                    }
+                    //Thread.currentThread().getName() 可以变相取i值
+                    System.out.println(Thread.currentThread().getName() + "号销售卖出" + house.threadLocal.get() + "套房子");
+                } finally {
+                    //防止内存泄露
+                    house.threadLocal.remove();
                 }
-                //Thread.currentThread().getName() 可以变相取i值
-                System.out.println(Thread.currentThread().getName() + "号销售卖出" + house.threadLocal.get() + "套房子");
             },String.valueOf(i)).start();
         }
     }
 
 
     /**
-     *
+     * 验证内存泄露
      */
     @Test
     public void test02(){
-
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        House house = new House();
+        try {
+            for (int i = 0; i < 10; i++) {
+                executorService.submit(()->{
+                    try {
+                        int startInt = house.threadLocal.get();
+                        house.saleValueByThreadLocal();
+                        int endInt = house.threadLocal.get();
+                        System.out.println(Thread.currentThread().getName() + "startInt = " + startInt + " ,endInt=" + endInt);
+                    } finally {
+                        house.threadLocal.remove();
+                    }
+                });
+            }
+        } finally {
+            executorService.shutdown();
+        }
     }
 
 
