@@ -437,3 +437,7 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
     * 实现：java.lang.ref.SoftReference
     * 特点：内存够用就保留，内存不够就回收
     * 应用场景：对内存敏感的场景，如高速缓存
+  * 弱引用：
+    * 实现：java.lang.ref.WeakReference
+    * 特点：只要垃圾回收机制运行，不管jvm内存空间是否足够，都进行回收
+    * 应用场景：读取本地图片,key路径，value弱引用图片内存 Map<String, WeakReference<BitMap>> imageCache = new HashMap<String, WeakReference<BitMap>>();

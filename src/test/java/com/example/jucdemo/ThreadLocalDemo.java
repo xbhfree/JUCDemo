@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -101,11 +102,15 @@ public class ThreadLocalDemo {
 
 
     /**
-     *
+     * 弱引用
      */
     @Test
     public void test05(){
-
+        WeakReference<MyObject> myObjectWeakReference = new WeakReference<>(new MyObject());
+        System.out.println("内存够用 gc before，myObjectWeakReference=" + myObjectWeakReference.get());
+        System.gc();
+        try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+        System.out.println("内存够用 gc after，myObjectWeakReference=" + myObjectWeakReference.get());
     }
 
 }
