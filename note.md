@@ -432,3 +432,4 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
 * java关系引用
   * 关系图<br/>
   * ![java引用关系图.png](./java引用关系图.png)
+  * 强引用：普通对象，指向普通对象的引用变量，特点即使OMM也不会被回收，只有显示引用为null，才可被视为可回收

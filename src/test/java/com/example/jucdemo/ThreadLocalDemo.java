@@ -62,11 +62,15 @@ public class ThreadLocalDemo {
 
 
     /**
-     *
+     * 强引用示例
      */
     @Test
     public void test03(){
-
+        MyObject myObject = new MyObject();
+        System.out.println("gc before MyObject = " + myObject);
+        myObject = null;
+        System.gc();//人工开启gc
+        System.out.println("gc after MyObject = " + myObject);
     }
 
 
@@ -108,7 +112,7 @@ class House{
 class MyObject{
     @Override
     protected void finalize() throws Throwable {
-        System.out.println("invoke finalize");
+        System.out.println("invoke finalize method");
         super.finalize();
     }
 }
