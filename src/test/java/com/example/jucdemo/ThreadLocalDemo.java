@@ -3,10 +3,12 @@ package com.example.jucdemo;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 public class ThreadLocalDemo {
@@ -75,11 +77,26 @@ public class ThreadLocalDemo {
 
 
     /**
-     *
+     * 软引用 设置虚拟机参数-Xms10m -Xmx10m
+     * 运行结果
+     * 内存够用，myObjectSoftReference=com.example.jucdemo.MyObject@df921b1
+     * invoke finalize method
+     * 内存不够用，myObjectSoftReference=null
+     * Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
      */
     @Test
     public void test04(){
-
+        SoftReference<MyObject> myObjectSoftReference = new SoftReference<>(new MyObject());
+        System.gc();
+        try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+        System.out.println("内存够用，myObjectSoftReference=" + myObjectSoftReference.get());
+        try {
+            byte[] bytes = new byte[20 * 1024 * 1024];//设置20m数据，超出内存
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            System.out.println("内存不够用，myObjectSoftReference=" + myObjectSoftReference.get());
+        }
     }
 
 

@@ -433,3 +433,7 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
   * 关系图<br/>
   * ![java引用关系图.png](./java引用关系图.png)
   * 强引用：普通对象，指向普通对象的引用变量，特点即使OMM也不会被回收，只有显示引用为null，才可被视为可回收
+  * 软引用：
+    * 实现：java.lang.ref.SoftReference
+    * 特点：内存够用就保留，内存不够就回收
+    * 应用场景：对内存敏感的场景，如高速缓存
