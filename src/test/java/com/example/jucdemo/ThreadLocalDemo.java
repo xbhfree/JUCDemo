@@ -104,3 +104,11 @@ class House{
     }
 
 }
+
+class MyObject{
+    @Override
+    protected void finalize() throws Throwable {
+        System.out.println("invoke finalize");
+        super.finalize();
+    }
+}

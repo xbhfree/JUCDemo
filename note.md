@@ -416,13 +416,19 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
 * ThredLocal提供线程局部变量，每一个线程在访问ThreadLocal实例的时候，都有自己独立初始化的变量副本
 * ThreadLocal实例通常是私有静态字段，目的是将状态（用户id或者事务id）与线程相关联
 #### 问题
-* 内存泄露：内存不回收，即内存泄露，需要调用remove回收
+* 内存泄露：不再使用的对象或变量占用的内存不被回收
 #### 底层源码
-* Thread
+* Thread<br/>
 包含ThreadLocal
-* ThreadLocal
+* ThreadLocal<br/>
 有ThreadLocalMap内部静态类
-* ThreadLocalMap
-实质为以一个threadLocal为key，任意对象为value的Entry对象
+* ThreadLocalMap<br/>
+实质为以一个threadLocal为key，任意对象为value的Entry对象<br/>
+两层包装
+    1. `WeakReference<ThreadLocal<?>>`将`ThreadLocal对象`变成一个弱引用对象
+    2. 定义一个`Entry`扩展`WeakReference<ThreadLocal<?>>`
 * 三者关系
 Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
+* java关系引用
+  * 关系图<br/>
+  * ![java引用关系图.png](./java引用关系图.png)
