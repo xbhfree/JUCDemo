@@ -3,8 +3,9 @@ package com.example.jucdemo;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
+import java.lang.ref.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -112,6 +113,39 @@ public class ThreadLocalDemo {
         try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
         System.out.println("内存够用 gc after，myObjectWeakReference=" + myObjectWeakReference.get());
     }
+
+
+    /**
+     * 虚引用 -Xms20m -Xmx20m psvm可看结果
+     */
+    @Test
+    public void test06(){
+        MyObject myObject = new MyObject();
+        ReferenceQueue<MyObject> queue = new ReferenceQueue<>();
+        PhantomReference<MyObject> phantomReference = new PhantomReference<>(myObject, queue);
+        //System.out.println(phantomReference.get()); //虚引用get总是返回null
+        List<byte[]> list = new ArrayList<>();
+        new Thread(() -> {
+            while (true){
+                list.add(new byte[1 * 1024 * 1024]);
+                try {TimeUnit.MILLISECONDS.sleep(50);} catch (InterruptedException e) {throw new RuntimeException(e);}
+                System.out.println(phantomReference.get() + " add byte success, list.size=" + list.size());
+            }
+        },"t1").start();
+
+        new Thread(() -> {
+            while (true){
+                Reference<? extends MyObject> poll = queue.poll();
+                if (poll != null){
+                    System.out.println("引用队列有对象加入 " + poll.get());
+                    break;
+                }
+            }
+        },"t2").start();
+
+        try {TimeUnit.SECONDS.sleep(5);} catch (InterruptedException e) {throw new RuntimeException(e);}
+    }
+
 
 }
 

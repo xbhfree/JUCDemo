@@ -441,3 +441,7 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
     * 实现：java.lang.ref.WeakReference
     * 特点：只要垃圾回收机制运行，不管jvm内存空间是否足够，都进行回收
     * 应用场景：读取本地图片,key路径，value弱引用图片内存 Map<String, WeakReference<BitMap>> imageCache = new HashMap<String, WeakReference<BitMap>>();
+  * 虚引用
+    * 实现：java.lang.ref.PhantomReference
+    * 特点：1.一个对象持有虚引用，则任何时候都可能被垃圾回收器回收；2.虚引用必须和引用队列（ReferenceQueue）联合使用
+    * 应用场景：提供一种对象被回收后，做某些事情的通知机制，以实现更灵活的回收
