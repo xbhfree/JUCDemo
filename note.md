@@ -461,3 +461,12 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
   * 每个线程都持有一个属于自己的专属map并维护了ThreadLocal对象与具体示例的映射，该map由于只被持有它的线程方法，所以不存在线程安全及锁的问题
   * 弱引用，避免了ThreadLocal对象无法被回收的问题
   * expungeStaleEntry安全加固，避免内存泄露
+
+### 对象内存布局
+#### 对象构成元素
+* 对象头（Header）
+  * 对象标记【Mark Word】
+  * 类元信息（类型指针）【class pointer】
+* 实例数据（Instance Data）
+* 对齐填充（Padding）
+  * 作用：保证8个字节的倍数
