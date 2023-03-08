@@ -464,9 +464,15 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
 
 ### 对象内存布局
 #### 对象构成元素
+* 内部结构图
+  * ![对象内部结构图.png](./对象内部结构图.png)
 * 对象头（Header）
   * 对象标记【Mark Word】
+    * 特点：根据对象的状态复用自己的存储空间，在运行期间MarkWord里存储的数据会随着锁标志位的变化而变化
   * 类元信息（类型指针）【class pointer】
+  *  ![HotSpot虚拟机对象头.png](HotSpot虚拟机对象头.png)
+  * ![MarkWord的存储结构.png](./MarkWord的存储结构.png)
+  
 * 实例数据（Instance Data）
 * 对齐填充（Padding）
   * 作用：保证8个字节的倍数
