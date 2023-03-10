@@ -394,8 +394,8 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
         }
     }
     ```
-    ![longAccumulate代码解析图.png](./longAccumulate代码解析图.png)
-  * ![longAccumulate代码解析图02.png](./longAccumulate代码解析图02.png)
+    ![longAccumulate代码解析图.png](pics/longAccumulate代码解析图.png)
+  * ![longAccumulate代码解析图02.png](pics/longAccumulate代码解析图02.png)
 * LongAccumulator
 
 * DoubleAdder
@@ -431,7 +431,7 @@ JMM是一种抽象概念，并不真实存在，它仅仅描述一组规定或�
 Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
 * java关系引用
   * 关系图<br/>
-  * ![java引用关系图.png](./java引用关系图.png)
+  * ![java引用关系图.png](pics/java引用关系图.png)
   * 强引用：普通对象，指向普通对象的引用变量，特点即使OMM也不会被回收，只有显示引用为null，才可被视为可回收
   * 软引用：
     * 实现：java.lang.ref.SoftReference
@@ -465,7 +465,7 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
 ### 对象内存布局
 #### 对象构成元素
 * 内部结构图
-  * ![对象内部结构图.png](./对象内部结构图.png)
+  * ![对象内部结构图.png](pics/对象内部结构图.png)
 * 对象头（Header）
   * 对象标记【Mark Word】
     * 特点：根据对象的状态复用自己的存储空间，在运行期间MarkWord里存储的数据会随着锁标志位的变化而变化
@@ -473,8 +473,18 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
   * 类元信息（类型指针）【class pointer】
     * 定义：对象指向他的类元数据的指针，虚拟机通过这个指针确定对象属于哪个类
     * 大小：8个字节
-  *  ![HotSpot虚拟机对象头.png](HotSpot虚拟机对象头.png)
-  * ![MarkWord的存储结构.png](./MarkWord的存储结构.png)
+  *  ![HotSpot虚拟机对象头.png](pics/HotSpot虚拟机对象头.png)
+  * ![MarkWord的存储结构.png](pics/MarkWord的存储结构.png)
+  * ![64位虚拟机MarkWord字节分布图.png](pics/64位虚拟机MarkWord字节分布图.png)
+  * markOop.hpp对象头注释
+    * ![MarkWord的markOop源码解释.png](pics/MarkWord的markOop源码解释.png)
+    * 1. hash：保存对象的哈希码 
+      2. age：保存对象的年龄 4bit 最大为1111，所以有15次寿命
+      3. biased_lock：偏向锁标识位
+      4. lock：锁状态标识位
+      5. javaThread*：保存持有偏向锁的线程ID
+      6. epoch：保存偏向时间戳
+    
   
 * 实例数据（Instance Data）
   * 定义：存放类的属性（field）信息，包括父类的属性信息
