@@ -62,7 +62,10 @@ synchronized
      2. 对象锁  `javap -v */*.class`查看字节码附加信息，有ACC_SYNCHRONIZED标识
      3. 类锁 有ACC_STATIC和ACC_SYNCHRONIZED标识
   4. 问答：为什么每一个对象都可以成为一个锁?<br/>底层c++创建对象时，会创建`objectMonitor()`，里面有`_owner`属性指向持有锁的对象
-
+  * 锁升级
+    * 偏向锁：MarkWord存储的是偏向线程的ID
+    * 轻量锁：MarkWord存储的是指向线程栈中Lock Record【记录】的指针
+    * 重量锁：MarkWord存储的是只想堆中的monitor对象的指针
 * `static synchromized` 类锁，锁定类创建的所有对象
 ### 乐观锁
 * 概念；认为使用资源时，不会有别的线程抢占资源，多用于读操作
