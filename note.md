@@ -484,6 +484,10 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
       4. lock：锁状态标识位
       5. javaThread*：保存持有偏向锁的线程ID
       6. epoch：保存偏向时间戳
+  * 压缩指针
+    * 开启方式：默认开启 -XX:+UseCompressedClassPointers
+    * 命令：java -XX:+PrintCommandLineFlags -version 打印jvm相关设置
+    * 作用：开启8+4+4（对齐填充）；关闭8+8 ，开启之后可以节省4字节的空间
     
   
 * 实例数据（Instance Data）
@@ -491,3 +495,4 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
 * 对齐填充（Padding）
   * 作用：保证8个字节的倍数
   * 特点：虚拟机要求对象起始地址必须是8字节的整数倍，填充数据不是必须存在的，仅仅为了字节对齐部分内存按照8字节补充对齐
+
