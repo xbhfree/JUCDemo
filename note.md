@@ -479,7 +479,7 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
   * markOop.hpp对象头注释
     * ![MarkWord的markOop源码解释.png](pics/MarkWord的markOop源码解释.png)
     * 1. hash：保存对象的哈希码 
-      2. age：保存对象的年龄 4bit 最大为1111，所以有15次寿命
+      2. age：保存对象的年龄 4bit 最大为1111，所以有15次寿命，通过-XX:MaxTenuringThreshold（tenuring图灵、threshold门槛）可以修改
       3. biased_lock：偏向锁标识位
       4. lock：锁状态标识位
       5. javaThread*：保存持有偏向锁的线程ID
