@@ -99,6 +99,11 @@ synchronized
     * 竞争成功，表示之前线程不存在，MarkWord中线程ID为新线程的ID，锁不会升级，仍然为偏向锁
     * 竞争失败，可能升级为轻量锁，保证线程间公平竞争锁
 * 注意点：偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，线程不会主动释放锁
+* jvm命令：
+  * java `-XX:+PrintFlagsInitial | grep BiasedLock*`
+  * `-XX:+UseBiasedLocking` 开启偏向锁
+  * `-XX:-UseBiasedLocking` 关闭偏向锁
+  * `-XX:BiasedLockingStartupDelay=0` 取消偏向锁开启延迟
 ### 问答
 1. monitor与java对象以及线程如何关联?
    1. 如果一个java对象被某个线程锁住，则该java对象的Mark Word字段中LockWord只想monitor的起始地址
