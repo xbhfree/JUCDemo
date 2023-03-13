@@ -43,4 +43,18 @@ public class SynchronizedUpDemo {
             System.out.println(ClassLayout.parseInstance(o).toPrintable());
         }
     }
+
+    /**
+     * 轻量锁 00
+     */
+    @Test
+    public void test03(){
+        Object o = new Object();
+        new Thread(() -> {
+            synchronized (o){
+                System.out.println(ClassLayout.parseInstance(o).toPrintable());
+            }
+        },"t1").start();
+        try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+    }
 }
