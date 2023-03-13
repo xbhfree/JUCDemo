@@ -117,7 +117,10 @@ synchronized
 * jvm参数：
   * -XX:PreBlockSpin=10 修改轻量锁升级重量锁自旋次数
 ### 重量锁
-* 原理：java中`synchronized`的重量锁，是基于进入和退出Monitor对象实现的。在编译时
+* 原理：<br/>java中`synchronized`的重量锁，是基于进入和退出Monitor对象实现的。<br/>
+在编译时会将同步块的开始位置插入`monitor enter`指令，在结束位置插入`monitor exit`指令。<br/>
+当线程执行到`monitor enter`指令时，会尝试获取对象所对应的`Monitor所有权`，如果获取到了，即获得锁，会在`monitor`的`owner`中存放当前线程的id。<br/>
+这样当前线程处于锁定状态，除非退出同步块，否则其他线程无法获取该`Monitor`。
 ### 问答
 1. monitor与java对象以及线程如何关联?
    1. 如果一个java对象被某个线程锁住，则该java对象的Mark Word字段中LockWord只想monitor的起始地址

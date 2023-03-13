@@ -57,4 +57,25 @@ public class SynchronizedUpDemo {
         },"t1").start();
         try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
     }
+
+
+    /**
+     * 轻量锁 10
+     */
+    @Test
+    public void test04(){
+        Object o = new Object();
+        new Thread(() -> {
+            synchronized (o){
+                System.out.println(ClassLayout.parseInstance(o).toPrintable());
+            }
+        },"t1").start();
+
+        new Thread(() -> {
+            synchronized (o){
+                System.out.println(ClassLayout.parseInstance(o).toPrintable());
+            }
+        },"t2").start();
+        try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+    }
 }
