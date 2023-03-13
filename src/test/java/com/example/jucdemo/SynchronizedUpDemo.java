@@ -78,4 +78,38 @@ public class SynchronizedUpDemo {
         },"t2").start();
         try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
     }
+
+
+    /**
+     * 偏向锁之后调用hashCode，升级为轻量锁
+     */
+    @Test
+    public void test05(){
+        try {TimeUnit.SECONDS.sleep(5);} catch (InterruptedException e) {throw new RuntimeException(e);}
+        Object o = new Object();
+        System.out.println("本应是偏向锁");
+        System.out.println(ClassLayout.parseInstance(o).toPrintable());
+        o.hashCode();
+        synchronized (o){
+            System.out.println("本应是偏向锁，经过hashCode运算，升级为轻量锁");
+            System.out.println(ClassLayout.parseInstance(o).toPrintable());
+        }
+        try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+    }
+
+
+    /**
+     * 偏向锁过程中调用hashCode，直接升级为重量级锁
+     */
+    @Test
+    public void test06(){
+        try {TimeUnit.SECONDS.sleep(5);} catch (InterruptedException e) {throw new RuntimeException(e);}
+        Object o = new Object();
+        synchronized (o){
+            o.hashCode();
+            System.out.println("偏向锁过程中调用hashCode，立马撤销偏向锁模式，直接升级为重量级锁");
+            System.out.println(ClassLayout.parseInstance(o).toPrintable());
+        }
+        try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+    }
 }
