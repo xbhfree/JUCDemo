@@ -104,6 +104,8 @@ synchronized
   * `-XX:+UseBiasedLocking` 开启偏向锁
   * `-XX:-UseBiasedLocking` 关闭偏向锁
   * `-XX:BiasedLockingStartupDelay=0` 取消偏向锁开启延迟
+* 偏向锁流程图
+  * ![偏向锁流程.png](pics/偏向锁流程.png)
 ### 问答
 1. monitor与java对象以及线程如何关联?
    1. 如果一个java对象被某个线程锁住，则该java对象的Mark Word字段中LockWord只想monitor的起始地址
