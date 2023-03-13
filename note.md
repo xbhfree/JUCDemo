@@ -125,6 +125,12 @@ synchronized
 1. monitor与java对象以及线程如何关联?
    1. 如果一个java对象被某个线程锁住，则该java对象的Mark Word字段中LockWord只想monitor的起始地址
    2. Monitor的Owner字段会存放拥有相关联对象的线程id
+2. 无锁升级为偏向锁后，hashcode去哪里了
+   1. 无锁状态下，MarkWord中可以存放存储对象的identity hash code的值。
+   当对象的hashCode()方法第一次调用后，jvm会生成相对应的identity hash code值，并存放到MarkWord中。
+   2. 对于偏向锁：当线程获取偏向锁后，会有Thread ID和epoch覆盖identity hash code所在位置。
+   如果一个对象的hashCode()方法已经被调用过，这个对象不能被设置偏向锁。
+   如果可以的话，MarkWord中的identity hash code会被Thread ID覆盖，造成同一个对象前后两次调用如果一个对象的hashCode()获得结果不一致。
 ### 锁过程
 * ![锁过程-1.png](pics/锁过程-1.png)
 * ![锁过程-2.png](pics/锁过程-2.png)
