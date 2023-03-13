@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.openjdk.jol.info.ClassLayout;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 偏向锁升级demo
  * 001 无状态
@@ -15,13 +17,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class SynchronizedUpDemo {
 
     /**
-     * 测试轻量锁
+     * 测试偏向锁
      * jdk15已经弃用偏向锁相关维护 jep使用_JEP 374：禁用和弃用偏向锁定
      * 需要手动加jvm参数-XX:BiasedLockingStartupDelay=0 取消偏向锁开启延迟
      */
     @Test
     public void test01(){
         Object o = new Object();
+        synchronized (o){
+            System.out.println(ClassLayout.parseInstance(o).toPrintable());
+        }
+    }
+
+
+    /**
+     * 测试偏向锁
+     * jdk15已经弃用偏向锁相关维护 jep使用_JEP 374：禁用和弃用偏向锁定
+     * 暂停5s
+     */
+    @Test
+    public void test02(){
+        Object o = new Object();
+        try {TimeUnit.SECONDS.sleep(5);} catch (InterruptedException e) {throw new RuntimeException(e);}
         synchronized (o){
             System.out.println(ClassLayout.parseInstance(o).toPrintable());
         }
