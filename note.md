@@ -1,4 +1,4 @@
-# JUC
+# JUC（java.util.concurrent）
 ## java多线程相关概念
 ### 1把锁
 synchronized
@@ -557,4 +557,13 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
 * 对齐填充（Padding）
   * 作用：保证8个字节的倍数
   * 特点：虚拟机要求对象起始地址必须是8字节的整数倍，填充数据不是必须存在的，仅仅为了字节对齐部分内存按照8字节补充对齐
+
+## AQS
+* 定义：AbstractQueuedSynchronized 抽象的队列同步器
+* 官网解释：整体是一个抽象的`FIFO队列`来完成资源获取线程的排队工作，并通过一个`int类变量`表示持有锁的状态
+* 技术解释：是用来实现锁或其他同步器组件的公共基础部分的抽象实现。是重量级框架以及整个JUC体系的基石。
+* 底层数据结构：链表
+  * ![AQS底层结构图.png](pics/AQS底层结构图.png)
+* 作用：解决锁分配给“谁”的问题
+* 重要性：jvm对与Java，如同AQS对于JUC（java.util.concurrent）
 
