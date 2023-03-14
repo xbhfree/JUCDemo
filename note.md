@@ -559,11 +559,36 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
   * 特点：虚拟机要求对象起始地址必须是8字节的整数倍，填充数据不是必须存在的，仅仅为了字节对齐部分内存按照8字节补充对齐
 
 ## AQS
+### 基础知识
 * 定义：AbstractQueuedSynchronized 抽象的队列同步器
 * 官网解释：整体是一个抽象的`FIFO队列`来完成资源获取线程的排队工作，并通过一个`int类变量`表示持有锁的状态
 * 技术解释：是用来实现锁或其他同步器组件的公共基础部分的抽象实现。是重量级框架以及整个JUC体系的基石。
 * 底层数据结构：链表
   * ![AQS底层结构图.png](pics/AQS底层结构图.png)
+  * ![AQS同步队列的基本结构.png](pics/AQS同步队列的基本结构.png) 
+* 内部体系架构：
+  * ![AQS内部体系架构.png](pics/AQS内部体系架构.png)
 * 作用：解决锁分配给“谁”的问题
+* 组成结构：
+  * 等待方式：自旋
+  * state变量：判断是否阻塞（0为非阻塞，> 0为阻塞）
+  * 入队方式：尾部入队，头部出队
 * 重要性：jvm对与Java，如同AQS对于JUC（java.util.concurrent）
-
+### Node节点
+* 属性说明
+  * ![Node属性说明.png](pics/Node属性说明.png)
+### 源码分析
+* ReentrantLock构造公平锁、非公平锁区别：`!hasQueuedThreads()`判断是否需要排队
+* 无论公平还是非公平都要走到`acquire(1)`方法
+* `acquire(1)` 三个方法
+  * !tryAcquire(arg) 抢锁，两个判断：1.当前state是否为0；2.当前占有资源的线程和抢夺资源线程是否一致
+  * addWaiter(Node.EXCLUSIVE) 排队 第一次创建虚拟节点（哨兵节点，不存储信息，只占位），然后将竞争节点挂入虚拟节点
+    * 后续节点三步走：
+    * prev 新线程连接上一个节点
+    * compareAndSetTail  将尾指针指向新节点
+    * next  上一个节点指向新线程
+  * acquireQueued(addWaiter(Node.EXCLUSIVE), arg) 再次排队
+    * arg 为1
+    * 后置节点将前置节点signal设置为-1，并将自己挂起，自己状态为0，符合FIFO
+### 涉及设计模式
+1. 模板模式：ReentrantLock acquire方法
