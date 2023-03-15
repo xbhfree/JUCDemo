@@ -579,16 +579,29 @@ Thread相当于自然人，ThreadLocal身份证，ThreadLocalMap身份证信息
   * ![Node属性说明.png](pics/Node属性说明.png)
 ### 源码分析
 * ReentrantLock构造公平锁、非公平锁区别：`!hasQueuedThreads()`判断是否需要排队
-* 无论公平还是非公平都要走到`acquire(1)`方法
-* `acquire(1)` 三个方法
-  * !tryAcquire(arg) 抢锁，两个判断：1.当前state是否为0；2.当前占有资源的线程和抢夺资源线程是否一致
-  * addWaiter(Node.EXCLUSIVE) 排队 第一次创建虚拟节点（哨兵节点，不存储信息，只占位），然后将竞争节点挂入虚拟节点
-    * 后续节点三步走：
-    * prev 新线程连接上一个节点
-    * compareAndSetTail  将尾指针指向新节点
-    * next  上一个节点指向新线程
-  * acquireQueued(addWaiter(Node.EXCLUSIVE), arg) 再次排队
-    * arg 为1
-    * 后置节点将前置节点signal设置为-1，并将自己挂起，自己状态为0，符合FIFO
+* lock
+    * 无论公平还是非公平都要走到`acquire(1)`方法
+    * `acquire(1)` 三个方法
+      * !tryAcquire(arg) 抢锁，两个判断：1.当前state是否为0；2.当前占有资源的线程和抢夺资源线程是否一致
+      * addWaiter(Node.EXCLUSIVE) 排队 第一次创建虚拟节点（哨兵节点，不存储信息，只占位），然后将竞争节点挂入虚拟节点
+        * 后续节点三步走：
+        * prev 新线程连接上一个节点
+        * compareAndSetTail  将尾指针指向新节点
+        * next  上一个节点指向新线程
+      * acquireQueued(addWaiter(Node.EXCLUSIVE), arg) 再次排队
+        * arg 为1
+        * 后置节点将前置节点signal设置为-1，并将自己挂起，自己状态为0，符合FIFO
+      * 三步
+      1. 尝试加锁
+      2. 加锁失败，线程入队列
+      3. 线程入队列后，进入阻塞状态
+* unlock
+  * sync.release(1)
+  * tryRelease(arg)
+  * unparkSuccessor
+  * 非公平锁下解锁会使得排队第一个线程释放哨兵节点，自己变为哨兵节点，然后进行锁块内数据处理
+* cancelAcquire(node)取消流程
+  * 直接取消队尾
+  * 中间取消
 ### 涉及设计模式
 1. 模板模式：ReentrantLock acquire方法
