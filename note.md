@@ -121,6 +121,12 @@ synchronized
 在编译时会将同步块的开始位置插入`monitor enter`指令，在结束位置插入`monitor exit`指令。<br/>
 当线程执行到`monitor enter`指令时，会尝试获取对象所对应的`Monitor所有权`，如果获取到了，即获得锁，会在`monitor`的`owner`中存放当前线程的id。<br/>
 这样当前线程处于锁定状态，除非退出同步块，否则其他线程无法获取该`Monitor`。
+### ReentrantReadWriteLock(读写锁)
+* 定义：一个资源能够被`多个读线程`访问，或者被`一个写线程`访问，但不能同时存在读写线程
+* 缺点：
+  1. 写锁饥饿问题， 读操作太多导致写操作类似阻塞
+  2. 锁降级
+* 演化历程：无锁->synchronized->读写锁->邮戳锁
 ### JIT编译器对锁的优化
 #### JIT
 * 定义：Just In Time Compiler，即时编译器
