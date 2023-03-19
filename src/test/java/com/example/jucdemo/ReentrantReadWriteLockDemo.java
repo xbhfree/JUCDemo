@@ -44,6 +44,24 @@ public class ReentrantReadWriteLockDemo {
 
         try {TimeUnit.SECONDS.sleep(5);} catch (InterruptedException e) {throw new RuntimeException(e);}
     }
+
+
+    /**
+     * 读写锁锁降级示例
+     */
+    @Test
+    public void test02(){
+        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+        ReentrantReadWriteLock.ReadLock readLock = readWriteLock.readLock();
+        ReentrantReadWriteLock.WriteLock writeLock = readWriteLock.writeLock();
+
+        writeLock.lock();
+        System.out.println("写入中。。。");
+        readLock.lock();
+        System.out.println("读取中");
+        writeLock.unlock();
+        readLock.unlock();
+    }
 }
 
 class MyResource{
