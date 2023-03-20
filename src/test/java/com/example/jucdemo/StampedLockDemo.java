@@ -49,6 +49,8 @@ public class StampedLockDemo {
             try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
             System.out.println(Thread.currentThread().getName() + "正在乐观读取，第" + i + "秒，当前number=" + number + "，修改标记=" + lock.validate(stamp));
         }
+        //影响性能，产生bug
+        //Thread.interrupted();
         if (!lock.validate(stamp)){
             long l = lock.readLock();
             try {
