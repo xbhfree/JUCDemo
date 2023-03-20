@@ -41,6 +41,30 @@ public class StampedLockDemo {
         }
 
     }
+
+
+    public void tryOptimisticRead(){
+        long stamp = lock.tryOptimisticRead();
+        for (int i = 0; i < 3; i++) {
+            try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+            System.out.println(Thread.currentThread().getName() + "正在乐观读取，第" + i + "秒，当前number=" + number + "，修改标记=" + lock.validate(stamp));
+        }
+        if (!lock.validate(stamp)){
+            long l = lock.readLock();
+            try {
+                System.out.println(Thread.currentThread().getName() + "读取过程中有修改，乐观变悲观");
+                System.out.println(Thread.currentThread().getName() + "number=" + number);
+            }finally {
+                lock.unlockRead(l);
+            }
+        }
+        try {
+            System.out.println(Thread.currentThread().getName() + "读取完成");
+        }finally {
+            lock.tryUnlockRead();
+        }
+
+    }
     /**
      * 传统读写
      */
@@ -51,6 +75,27 @@ public class StampedLockDemo {
         },"readThread").start();
 
         try {TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e) {throw new RuntimeException(e);}
+
+        new Thread(() -> {
+            write();
+        },"writeThread").start();
+
+        try {TimeUnit.SECONDS.sleep(10);} catch (InterruptedException e) {throw new RuntimeException(e);}
+
+        System.out.println(Thread.currentThread().getName() + ",number=" + number);
+    }
+
+
+    /**
+     * 乐观读写
+     */
+    @Test
+    public void test02(){
+        new Thread(() -> {
+            tryOptimisticRead();
+        },"OptimisticReadThread").start();
+
+        try {TimeUnit.SECONDS.sleep(2);} catch (InterruptedException e) {throw new RuntimeException(e);}
 
         new Thread(() -> {
             write();
